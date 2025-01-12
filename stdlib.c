@@ -20,8 +20,14 @@
 #include <ctype.h>
 #include "./stdint.h"
 #include <limits.h>
+#include "./errno.h"
 
 int system(const char *__command) {
+    if (__command == NULL) {
+        errno = EINVAL; // Invalid argument
+        return -1;
+    }
+
     pid_t pid = fork();
     if (pid == 0) {
         // Child process
@@ -38,6 +44,11 @@ int system(const char *__command) {
 }
 
 int atoi(const char *__str) {
+    if (__str == NULL) {
+        errno = EINVAL; // Invalid argument
+        return 0;
+    }
+
     int result = 0;
     int sign = 1;
 
@@ -64,6 +75,11 @@ int atoi(const char *__str) {
 }
 
 double atof(const char *__str) {
+    if (__str == NULL) {
+        errno = EINVAL; // Invalid argument
+        return 0.0;
+    }
+
     double result = 0.0;
     double factor = 1.0;
     int sign = 1;
@@ -101,6 +117,14 @@ double atof(const char *__str) {
 }
 
 long strtol(const char *__nptr, char **__endptr, int __base) {
+    if (__nptr == NULL) {
+        if (__endptr) {
+            *__endptr = (char *)__nptr; // Set endptr to the input pointer
+        }
+        errno = EINVAL; // Invalid argument
+        return 0;
+    }
+
     long __result = 0;
     int __sign = 1;
 
@@ -152,6 +176,7 @@ long strtol(const char *__nptr, char **__endptr, int __base) {
         // Check for overflow
         if (__result > (LONG_MAX - __digit) / __base) {
             __result = LONG_MAX; // Set to max value on overflow
+            errno = ERANGE; // Set range error
             break;
         }
 
@@ -166,6 +191,9 @@ long strtol(const char *__nptr, char **__endptr, int __base) {
 
     return __sign * __result; // Return the result with the sign
 }
+
+// Define a static memory pool
+#define MEMORY_POOL_SIZE 1024
 
 // Define a static memory pool
 #define MEMORY_POOL_SIZE 1024
@@ -189,6 +217,7 @@ void* malloc(size_t __size) {
     // Align size to the nearest multiple of sizeof(Block)
     size_t __total_size = __size + sizeof(Block);
     if (allocated + __total_size > MEMORY_POOL_SIZE) {
+        errno = ENOMEM; // Not enough memory
         return NULL; // Not enough memory
     }
 
@@ -240,7 +269,6 @@ void free(void* __ptr) {
     free_list = block; // Update the free list
 }
 
-void exit(int __status)
-{
+void exit(int __status) {
     _exit(__status);
 }
