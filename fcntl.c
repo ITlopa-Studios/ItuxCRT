@@ -13,6 +13,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
 */
+
 #include "./fcntl.h"
 #include "./errno.h"
 #include "./stdarg.h"
@@ -24,32 +25,77 @@ int fcntl(int __fd, int __cmd, ...) {
     va_start(__args, __cmd);
 
     switch (__cmd) {
-        case F_GETFL:
-            __retval = __fd;
-            break;
-
-        case F_SETFL:
-            {
-                int __flags = va_arg(__args, int);
-                __flags = __fd;
+        case F_GETFL: {
+            // Get the current file flags
+            __asm__ (
+                "movq %[fd], %%rdi\n"   // fd in rdi
+                "movq %[cmd], %%rsi\n"  // cmd in rsi
+                "syscall\n"             // Invoke syscall
+                : "=a" (__retval)       // Return value in rax
+                : [fd] "r" (__fd), [cmd] "i" (F_GETFL)
+                : "%rdi", "%rsi", "%rcx", "%r11", "memory"
+            );
+            if (__retval == -1) {
+                errno = EINVAL; // Set error code
             }
             break;
+        }
 
-        case F_GETFD:
-            __retval = __fd;
-            break;
-
-        case F_SETFD:
-            {
-                int __flags = va_arg(__args, int);
-                __fd = __flags;
+        case F_SETFL: {
+            int __flags = va_arg(__args, int);
+            // Set new file flags
+            __asm__ (
+                "movq %[fd], %%rdi\n"   // fd in rdi
+                "movq %[cmd], %%rsi\n"  // cmd in rsi
+                "movq %[flags], %%rdx\n" // flags in rdx
+                "syscall\n"             // Invoke syscall
+                : "=a" (__retval)       // Return value in rax
+                : [fd] "r" (__fd), [cmd] "i" (F_SETFL), [flags] "r" (__flags)
+                : "%rdi", "%rsi", "%rdx", "%rcx", "%r11", "memory"
+            );
+            if (__retval == -1) {
+                errno = EINVAL; // Set error code
             }
             break;
+        }
 
-        
+        case F_GETFD: {
+            // Get the file descriptor flags
+            __asm__ (
+                "movq %[fd], %%rdi\n"   // fd in rdi
+                "movq %[cmd], %%rsi\n"  // cmd in rsi
+                "syscall\n"             // Invoke syscall
+                : "=a" (__retval)       // Return value in rax
+                : [fd] "r" (__fd), [cmd] "i" (F_GETFD)
+                : "%rdi", "%rsi", "%rcx", "%r11", "memory"
+            );
+            if (__retval == -1) {
+                errno = EINVAL; // Set error code
+            }
+            break;
+        }
+
+        case F_SETFD: {
+            int __flags = va_arg(__args, int);
+            // Set new file descriptor flags
+            __asm__ (
+                "movq %[fd], %%rdi\n"   // fd in rdi
+                "movq %[cmd], %%rsi\n"  // cmd in rsi
+                "movq %[flags], %%rdx\n" // flags in rdx
+                "syscall\n"             // Invoke syscall
+                : "=a" (__retval)       // Return value in rax
+                : [fd] "r" (__fd), [cmd] "i" (F_SETFD), [flags] "r" (__flags)
+                : "%rdi", "%rsi", "%rdx", "%rcx", "%r11", "memory"
+            );
+            if (__retval == -1) {
+                errno = EINVAL; // Set error code
+            }
+            break;
+        }
+
         default:
-            __retval = -1;
-            errno = EINVAL;
+            __retval = -1; // Invalid command
+            errno = EINVAL; // Set error code
             break;
     }
 
