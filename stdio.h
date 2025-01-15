@@ -28,7 +28,7 @@
 
 typedef struct _iobuf {
     int fd;
-    const char *mode
+    const char *mode;
 } FILE;
 
 extern FILE *stdin;
