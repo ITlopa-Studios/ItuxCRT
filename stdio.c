@@ -404,7 +404,7 @@ int sscanf(const char *__str, const char *__format, ...)
  * @return The number of characters written, or -1 on error.
  */
 int vfprintf(FILE *__stream, const char *__format, va_list __args) {
-    static char buf[6024]; // Buffer for formatted output
+    char buf[6024]; // Buffer for formatted output
     int len = vsnprintf(buf, sizeof(buf), __format, __args); // Format the string
 
     if (len < 0) {
@@ -457,7 +457,7 @@ int printf(const char *__format, ...)
  * @return The number of items successfully read, or -1 on error.
  */
 int vfscanf(FILE *__stream, const char *__format, va_list __args) {
-    static char buf[6024];
+    char buf[6024];
     ssize_t bytesRead = read(__stream->fd, buf, sizeof(buf) - 1); // Read from the stream
 
     if (bytesRead < 0) {
