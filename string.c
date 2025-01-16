@@ -67,3 +67,32 @@ int strcmp(const char *__s1, const char *__s2) {
     }
     return *(unsigned char *)__s1 - *(unsigned char *)__s2;
 }
+
+/*
+ * strchr - Locate the first occurrence of a character in a string.
+ * @s: The string to search.
+ * @c: The character to find.
+ *
+ * Return: A pointer to the first occurrence of the character in the string,
+ *         or NULL if the character is not found.
+ */
+char* strchr(const char* __s, int __c) {
+    if (__s == NULL) {
+        errno = EINVAL; // Invalid argument
+        return NULL; // Return NULL for NULL pointer
+    }
+
+    // Convert __c to char
+    char ch = (char)__c;
+
+    // Iterate through the string
+    while (*__s != '\0') {
+        if (*__s == ch) {
+            return (char*)__s; // Return pointer to the found character
+        }
+        __s++;
+    }
+
+    // If we reach here, the character was not found
+    return NULL;
+}
