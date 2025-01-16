@@ -33,7 +33,7 @@ double atof(const char *__str);
 long strtol(const char *__nptr, char **__endptr, int __base);
 
 #define EXIT_SUCCESS 0
-#define EXIT_FAILED 1
+#define EXIT_FAILURE 1
 
 void* malloc(size_t __size);
 
