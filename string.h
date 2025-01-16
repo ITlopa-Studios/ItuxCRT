@@ -28,4 +28,14 @@ char* strdup(const char* __src);
 
 int strcmp(const char *__s1, const char *__s2);
 
+/*
+ * strchr - Locate the first occurrence of a character in a string.
+ * @s: The string to search.
+ * @c: The character to find.
+ *
+ * Return: A pointer to the first occurrence of the character in the string,
+ *         or NULL if the character is not found.
+ */
+char* strchr(const char* __s, int __c);
+
 #endif
