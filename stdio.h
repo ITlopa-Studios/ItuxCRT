@@ -87,4 +87,10 @@ int scanf(const char *__format, ...);
 
 void perror(const char *__s);
 
+int fgetc(FILE *__stream);
+
+int getc(FILE *__stream);
+
+int getchar();
+
 #endif
