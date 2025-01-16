@@ -505,3 +505,32 @@ void perror(const char *__s)
     }
     fprintf(stderr, "%s\n", strerror(errno));
 }
+
+int fgetc(FILE *__stream) {
+    if (__stream == NULL) {
+        errno = EINVAL;
+        return EOF;
+    }
+
+    char c;
+    ssize_t result = read(__stream->fd, &c, 1);
+
+    if (result < 0) {
+        errno = EIO;
+        return EOF;
+    } else if (result == 0) {
+        return EOF;
+    }
+
+    return (unsigned char)c;
+}
+
+int getc(FILE *__stream)
+{
+    return fgetc(__stream);
+}
+
+int getchar()
+{
+    return getc(stdin);
+}
