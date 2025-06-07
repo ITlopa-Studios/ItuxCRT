@@ -11,74 +11,63 @@
 ; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 ; GNU Lesser General Public License for more details.
+%define SYS_READ    0
+%define SYS_WRITE   1
+%define SYS_OPEN    2
+%define SYS_CLOSE   3
+%define SYS_FORK    57
+%define SYS_EXECVE  59
+
 section .data
-    filename db 'test.txt', 0          ; Standard filename
-    msg db 'Hello, World!', 13          ; Standard message
+    errno dq 0          ; Global var for errno
 
 section .text
-    global open
-    global close
-    global write
-    global read
-    global fork
-    global execlp
+    global open, close, write, read, fork, execlp
 
-; int open(const char *__path, int __flags, mode_t __mode);
 open:
-    mov rax, 2          ; syscall: open
-    syscall             ; invoke syscall
+    mov rax, SYS_OPEN
+    syscall
+    cmp rax, 0
+    jge .done
+    mov [errno], rax
+    mov rax, -1
+.done:
     ret
 
-; int close(int __fd);
 close:
-    mov rax, 3          ; syscall: close
-    syscall             ; invoke syscall
+    mov rax, SYS_CLOSE
+    syscall
     ret
 
-; ssize_t write(int __fd, const void *__str, size_t __bytes);
 write:
-    ; rdi - file descriptor (0, 1, or 2)
-    ; rsi - message pointer
-    ; rdx - number of bytes
-    mov rax, 1          ; syscall: write
-    syscall             ; invoke syscall
+    mov rax, SYS_WRITE
+    syscall
+    cmp rax, 0
+    jge .done
+    mov [errno], rax
+.done:
     ret
 
-; ssize_t read(int __fd, void *__str, size_t __bytes);
 read:
-    ; rdi - file descriptor (0 for stdin)
-    ; rsi - buffer pointer
-    ; rdx - number of bytes
-    mov rax, 0          ; syscall: read
-    syscall             ; invoke syscall
+    mov rax, SYS_READ
+    syscall
     ret
 
-; pid_t fork(void);
 fork:
-    mov rax, 57         ; syscall: fork
-    syscall             ; invoke syscall
+    mov rax, SYS_FORK
+    syscall
+    cmp rax, 0
+    jge .done
+    mov [errno], rax
+.done:
     ret
 
-; int execlp(const char *__file, const char *__arg, ...);
 execlp:
-    ; rdi - file
-    ; rsi - first argument
-    ; rdx - other arguments
-
-    ; Prepare arguments for execve
-    push rdi            ; Save pointer to the file
-    mov rax, 0          ; Argument count
-    mov rsi, rsp        ; Pointer to the stack (where arguments are)
-
-    ; Prepare the argument array
-    mov rdi, rsp        ; Pointer to the stack
-    xor rdx, rdx        ; Pointer to the environment array (NULL)
-
-    ; Terminate the argument array with NULL
-    push rdx            ; Add NULL to the end of the argument array
-    push rsi            ; Add the first argument
-    push rdi            ; Add the filename
-
-    mov rax, 59         ; syscall: execve
-    syscall             ; invoke syscall
+    push 0              ; NULL-terminate argv
+    push rsi            ; arg0
+    push rdi            ; filename
+    mov rsi, rsp        ; argv = [filename, arg0, NULL]
+    mov rax, SYS_EXECVE
+    syscall
+    add rsp, 24         ; Cleanup stack
     ret
