@@ -21,14 +21,12 @@
 size_t strlen(const char *__s) {
     if (__s == NULL) {
         errno = EINVAL; // Invalid argument
-        return 0; // Return 0 for NULL pointer
+        return 0; // String len - 0 (s - NULL)
     }
-
-    size_t i = 0;
-    while (__s[i] != '\0') {
-        i++;
-    }
-    return i;
+    
+    const char *p = __s;
+    while (*p) p++;
+    return p - __s;
 }
 
 char* strdup(const char* __src) {
