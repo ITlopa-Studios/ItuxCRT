@@ -248,7 +248,10 @@ int vsnprintf(char *__str, size_t __size, const char *__format, va_list __args) 
                 if (__written < __size - 1) {
                     __str[__written++] = __value;
                 }
-            }
+            } else if (*__p == '%') { // "%" character
+                if (__written < __size - 1) {
+                    __str[__written++] = '%';
+                }
         } else {
             if (__written < __size - 1) {
                 __str[__written++] = *__p; // Copy regular characters
