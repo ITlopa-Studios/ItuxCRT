@@ -16,6 +16,12 @@
 #ifndef _STDDEF_
 #define _STDDEF_ 1
 
+#ifdef _FULLEND_
+#include <sys/types.h>
+#else
+#include "./sys/types.h"
+#endif
+
 #ifndef NULL
 #define NULL ((void *)0)
 #endif
